@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Warga Griya Safira</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "firebase/app": "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
+            "firebase/database": "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js"
+        }
+    }
+    </script>
+
+    <style>
+        /* ===== SAMA SEPERTI SEBELUMNYA (Blue Obsidian) ===== */
+        :root { --ob-900:#03060d; --ob-800:#070c1a; --ob-700:#0c1428; --ob-600:#121e38; --ob-500:#1a2a4a; --ob-400:#24375c; --ob-300:#2f4570; --crystal:#38bdf8; --crystal-dim:#1a7db5; --crystal-glow:rgba(56,189,248,0.12); --crystal-glow-md:rgba(56,189,248,0.22); --crystal-glow-s:rgba(56,189,248,0.4); --sapphire:#818cf8; --cyan:#22d3ee; --glass:rgba(10,16,32,0.7); --glass-light:rgba(18,30,56,0.45); --glass-border:rgba(56,189,248,0.08); --glass-border-h:rgba(56,189,248,0.22); --t1:#eaf0fa; --t2:#8e9fba; --t3:#536580; --ok:#34d399; --ok-bg:rgba(52,211,153,0.08); --err:#f87171; --err-bg:rgba(248,113,113,0.08); --warn:#fbbf24; --warn-bg:rgba(251,191,36,0.06); --r-sm:10px; --r-md:16px; --r-lg:24px; --r-xl:32px; }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--ob-900);background-image:radial-gradient(ellipse at 15% 0%,rgba(56,189,248,0.05) 0%,transparent 55%),radial-gradient(ellipse at 85% 100%,rgba(129,140,248,0.04) 0%,transparent 55%);color:var(--t1);padding:16px 12px 110px 12px;max-width:480px;margin:0 auto;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+        #particleCanvas{position:fixed;top:0;left:50%;transform:translateX(-50%);width:480px;max-width:100%;height:100vh;pointer-events:none;z-index:0;}
+        .app-layer{position:relative;z-index:2;}
+        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;position:relative;}
+        .header::after{content:'';position:absolute;bottom:-10px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--crystal),var(--sapphire),transparent);opacity:0.35;}
+        .header h1{font-size:19px;font-weight:800;color:var(--t1);letter-spacing:-0.3px;}
+        .header h1 small{display:block;font-size:11px;font-weight:400;color:var(--t3);margin-top:2px;letter-spacing:0.2px;}
+        .badge-admin{background:var(--crystal-glow);color:var(--crystal);font-size:11px;padding:7px 14px;border-radius:30px;font-weight:700;border:1px solid var(--glass-border-h);cursor:pointer;transition:0.25s;backdrop-filter:blur(8px);}
+        .badge-admin:active{transform:scale(0.95);background:var(--crystal-glow-md);}
+        .profil-wrapper{position:relative;padding:1.5px;border-radius:var(--r-lg);overflow:hidden;margin-bottom:22px;}
+        .profil-wrapper::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent 0%,var(--crystal) 8%,transparent 16%,transparent 100%);animation:shimmer-spin 5s linear infinite;}
+        @keyframes shimmer-spin{to{transform:rotate(360deg);}}
+        .profil-card{position:relative;z-index:1;background:var(--glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:calc(var(--r-lg) - 1.5px);padding:20px 18px;display:flex;align-items:center;gap:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+        .avatar{width:56px;height:56px;background:linear-gradient(135deg,var(--ob-500),var(--ob-400));border:2px solid var(--glass-border-h);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--crystal);font-weight:800;flex-shrink:0;text-transform:uppercase;box-shadow:0 0 20px var(--crystal-glow);}
+        .profil-info h3{font-size:17px;font-weight:800;color:var(--t1);}
+        .profil-info p{font-size:12px;color:var(--t2);margin-top:3px;}
+        .profil-info p i{color:var(--crystal-dim);width:14px;}
+        .tag-rt{display:inline-block;margin-top:6px;background:var(--ok-bg);color:var(--ok);padding:3px 12px;border-radius:30px;font-size:10px;font-weight:700;border:1px solid rgba(52,211,153,0.15);}
+        .menu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;}
+        .menu-item{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:14px 4px;text-align:center;color:var(--t1);cursor:pointer;transition:0.2s;}
+        .menu-item i{font-size:24px;color:var(--crystal);margin-bottom:7px;display:block;transition:0.25s;filter:drop-shadow(0 0 4px var(--crystal-glow));}
+        .menu-item span{font-size:10px;font-weight:600;display:block;line-height:1.3;color:var(--t2);}
+        .menu-item:active{transform:scale(0.93);background:var(--crystal-glow);border-color:var(--glass-border-h);}
+        .menu-item:active i{filter:drop-shadow(0 0 10px var(--crystal-glow-s));}
+        .page{display:none;animation:pageIn 0.35s cubic-bezier(0.22,1,0.36,1);}
+        .page.active{display:block;}
+        @keyframes pageIn{0%{opacity:0;transform:translateY(12px);}100%{opacity:1;transform:translateY(0);}}
+        .section-title{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 12px 0;}
+        .section-title h2{font-size:17px;font-weight:800;color:var(--t1);}
+        .section-title h2 i{color:var(--crystal);margin-right:6px;}
+        .section-title a{font-size:12px;color:var(--crystal);font-weight:700;text-decoration:none;cursor:pointer;transition:0.2s;}
+        .section-title a:active{opacity:0.6;}
+        .card{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:var(--r-lg);padding:16px;box-shadow:0 4px 20px rgba(0,0,0,0.2);margin-bottom:16px;}
+        .card h4{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:12px;}
+        .pengumuman-card{background:var(--warn-bg);border:1px solid rgba(251,191,36,0.12);border-left:3px solid var(--warn);border-radius:var(--r-md);padding:14px 16px;margin:18px 0 8px 0;position:relative;overflow:hidden;}
+        .pengumuman-card::before{content:'';position:absolute;top:-20px;right:-20px;width:60px;height:60px;border-radius:50%;background:rgba(251,191,36,0.06);}
+        .pengumuman-card strong{font-size:13px;color:var(--warn);display:block;margin-bottom:6px;}
+        .pengumuman-card span{font-size:13px;color:var(--t2);line-height:1.5;}
+        .tagihan-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(56,189,248,0.05);font-size:13px;}
+        .tagihan-row:last-child{border-bottom:none;}
+        .tagihan-row .bulan{color:var(--t1);font-weight:500;}
+        .status{font-weight:700;font-size:12px;padding:3px 10px;border-radius:20px;}
+        .status.lunas{color:var(--ok);background:var(--ok-bg);}
+        .status.belum{color:var(--err);background:var(--err-bg);}
+        .total-bayar{margin-top:14px;padding:14px;border-radius:var(--r-md);background:var(--err-bg);border:1px solid rgba(248,113,113,0.1);display:flex;justify-content:space-between;font-weight:700;font-size:13px;}
+        .total-bayar span:last-child{color:var(--err);}
+        .galeri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;}
+        .galeri-item{background:var(--ob-700);border-radius:var(--r-sm);overflow:hidden;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--t3);border:1px solid var(--glass-border);position:relative;transition:0.25s;}
+        .galeri-item:active{transform:scale(0.96);}
+        .galeri-item img{width:100%;height:100%;object-fit:cover;}
+        .galeri-item .hapus-foto{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.65);color:var(--err);border:1px solid rgba(248,113,113,0.2);border-radius:50%;width:24px;height:24px;font-size:11px;cursor:pointer;transition:0.2s;display:flex;align-items:center;justify-content:center;}
+        .galeri-item .hapus-foto:active{background:var(--err);color:#fff;}
+        .galeri-empty{grid-column:span 3;background:var(--ob-700);padding:28px;border-radius:var(--r-sm);text-align:center;color:var(--t3);font-size:13px;border:1px dashed var(--glass-border-h);}
+        .btn-primary{background:linear-gradient(135deg,var(--crystal-dim),var(--crystal));color:var(--ob-900);border:none;border-radius:40px;padding:14px 20px;font-weight:800;font-size:15px;width:100%;text-align:center;margin-top:12px;box-shadow:0 6px 20px var(--crystal-glow-md);cursor:pointer;transition:0.25s;font-family:inherit;}
+        .btn-primary:active{transform:scale(0.97);filter:brightness(0.9);}
+        .btn-secondary{background:var(--crystal-glow);color:var(--crystal);border:1px solid var(--glass-border-h);border-radius:40px;padding:12px 20px;font-weight:700;width:100%;text-align:center;margin-top:8px;cursor:pointer;transition:0.2s;font-family:inherit;}
+        .btn-secondary:active{transform:scale(0.97);background:var(--crystal-glow-md);}
+        .btn-danger{background:var(--err-bg);color:var(--err);border:1px solid rgba(248,113,113,0.2);border-radius:40px;padding:12px 20px;font-weight:700;width:100%;text-align:center;margin-top:8px;cursor:pointer;transition:0.2s;font-family:inherit;}
+        .btn-danger:active{transform:scale(0.97);background:rgba(248,113,113,0.2);}
+        .admin-login{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:var(--r-lg);padding:24px;margin-top:8px;}
+        .admin-login h3{font-size:16px;font-weight:800;margin-bottom:14px;color:var(--t1);}
+        .admin-login input{width:100%;padding:14px 18px;background:var(--ob-700);color:var(--t1);border:1px solid var(--glass-border);border-radius:40px;font-size:15px;margin-bottom:12px;font-family:inherit;outline:none;transition:0.25s;}
+        .admin-login input:focus{border-color:var(--crystal);box-shadow:0 0 0 3px var(--crystal-glow);}
+        .admin-login input::placeholder{color:var(--t3);}
+        .admin-menu{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
+        .admin-menu button{background:var(--glass-light);border:1px solid var(--glass-border);padding:10px 14px;border-radius:30px;font-weight:700;color:var(--t2);cursor:pointer;flex:1;min-width:70px;font-size:12px;transition:0.2s;font-family:inherit;}
+        .admin-menu button.aktif{background:linear-gradient(135deg,var(--crystal-dim),var(--crystal));color:var(--ob-900);border-color:transparent;box-shadow:0 4px 16px var(--crystal-glow-md);}
+        .admin-form input,.admin-form textarea{width:100%;padding:12px 16px;background:var(--ob-700);color:var(--t1);border:1px solid var(--glass-border);border-radius:30px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none;transition:0.25s;}
+        .admin-form input:focus,.admin-form textarea:focus{border-color:var(--crystal);box-shadow:0 0 0 3px var(--crystal-glow);}
+        .admin-form input::placeholder,.admin-form textarea::placeholder{color:var(--t3);}
+        .admin-form textarea{border-radius:var(--r-md);min-height:70px;resize:vertical;}
+        .admin-form input[type="file"]{border:none;padding:6px 0;background:transparent;}
+        .admin-form input[type="file"]::file-selector-button{background:var(--crystal-glow);color:var(--crystal);border:1px solid var(--glass-border-h);border-radius:20px;padding:8px 16px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px;}
+        .list-item{background:var(--ob-700);padding:12px 14px;border-radius:var(--r-sm);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--glass-border);font-size:13px;color:var(--t2);}
+        .list-item strong{color:var(--t1);}
+        .list-item .aksi{display:flex;align-items:center;gap:10px;}
+        .list-item .lunaskan{color:var(--crystal);cursor:pointer;font-weight:700;font-size:12px;}
+        .list-item .hapus{color:var(--err);cursor:pointer;font-weight:700;font-size:14px;}
+        .warga-list-item{background:var(--ob-600);padding:12px 14px;border-radius:var(--r-sm);margin-bottom:10px;border-left:3px solid var(--crystal);}
+        .warga-list-item .kk-nama{font-weight:800;font-size:15px;color:var(--t1);}
+        .warga-list-item .kk-detail{font-size:12px;color:var(--t2);margin-top:4px;}
+        .warga-list-item .anggota-list{margin-top:8px;padding-left:12px;border-left:1px solid var(--glass-border);}
+        .warga-list-item .anggota-item{font-size:12px;color:var(--t2);padding:2px 0;}
+        .footer-menu{position:fixed;bottom:0;left:0;right:0;background:rgba(5,8,16,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;justify-content:space-around;padding:10px 8px 16px 8px;border-top:1px solid var(--glass-border);max-width:480px;margin:0 auto;z-index:50;}
+        .footer-item{text-align:center;font-size:10px;color:var(--t3);text-decoration:none;flex:1;cursor:pointer;border:none;background:none;font-family:inherit;font-weight:600;transition:0.25s;position:relative;padding:4px 0;}
+        .footer-item i{font-size:20px;display:block;margin-bottom:3px;transition:0.25s;}
+        .footer-item.aktif{color:var(--crystal);}
+        .footer-item.aktif i{filter:drop-shadow(0 0 8px var(--crystal-glow-s));color:var(--crystal);}
+        .footer-item.aktif::before{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:20px;height:3px;background:var(--crystal);border-radius:0 0 4px 4px;box-shadow:0 0 12px var(--crystal-glow-s);}
+        .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,6,13,0.7);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:0.3s;}
+        .modal-overlay.active{opacity:1;pointer-events:all;}
+        .modal-sheet{background:var(--ob-700);border:1px solid var(--glass-border-h);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:12px 20px 28px 20px;max-width:480px;width:100%;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);max-height:80vh;overflow-y:auto;}
+        .modal-overlay.active .modal-sheet{transform:translateY(0);}
+        .modal-handle{width:36px;height:4px;border-radius:4px;background:var(--ob-400);margin:0 auto 14px auto;}
+        .modal-sheet h3{font-size:17px;font-weight:800;color:var(--t1);margin-bottom:14px;}
+        .modal-sheet h3 i{color:var(--crystal);}
+        .info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--glass-border);font-size:13px;}
+        .info-row:last-child{border-bottom:none;}
+        .info-row span:first-child{color:var(--t2);}
+        .info-row span:last-child{color:var(--t1);font-weight:700;}
+        .modal-text{font-size:13px;color:var(--t2);line-height:1.7;}
+        .modal-text p{margin-bottom:10px;}
+        .modal-text strong{color:var(--t1);}
+        #toastContainer{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;max-width:420px;width:calc(100% - 32px);}
+        .toast{background:var(--ob-600);border:1px solid var(--glass-border-h);border-radius:var(--r-md);padding:12px 16px;font-size:13px;color:var(--t1);font-weight:600;display:flex;align-items:center;gap:10px;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(-20px);opacity:0;transition:0.3s;}
+        .toast.show{transform:translateY(0);opacity:1;}
+        .toast-success i{color:var(--ok);}
+        .toast-error i{color:var(--err);}
+        .toast-info i{color:var(--crystal);}
+        ::-webkit-scrollbar{width:4px;}
+        ::-webkit-scrollbar-track{background:transparent;}
+        ::-webkit-scrollbar-thumb{background:var(--ob-400);border-radius:4px;}
+        @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}}
+        @media (max-width:400px){.menu-grid{gap:7px;}.menu-item i{font-size:20px;}.menu-item span{font-size:9px;}.galeri-grid{gap:7px;}body{padding:12px 10px 110px 10px;}}
+        .text-hint{font-size:11px;color:var(--t3);margin-top:8px;}
+        .spacer{height:16px;}
+        .flex{display:flex;gap:8px;flex-wrap:wrap;}
+        .mb-1{margin-bottom:6px;}
+    </style>
+</head>
+<body>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="app-layer">
+
+        <!-- HEADER (akan diisi dinamis) -->
+        <header class="header">
+            <h1 id="headerNama">Griya Safira <small id="headerAlamat">Perumahan &bull; Ciherang, Banjarsari</small></h1>
+            <span class="badge-admin" id="toggleAdminBtn"><i class="fas fa-user-cog"></i> Admin</span>
+        </header>
+
+        <!-- PROFIL (dinamis) -->
+        <div class="profil-wrapper">
+            <div class="profil-card">
+                <div class="avatar" id="avatarLetter">BS</div>
+                <div class="profil-info">
+                    <h3 id="namaWarga">Budi Santoso</h3>
+                    <p id="profilAlamat"><i class="fas fa-home"></i> RT 03 / RW 05 &bull; Blok A-12</p>
+                    <span class="tag-rt"><i class="fas fa-user-check"></i> Warga Aktif</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== HALAMAN BERANDA ===== -->
+        <div id="pageWarga" class="page active">
+            <div class="menu-grid">
+                <div class="menu-item" onclick="bukaModalWarga()"><i class="fas fa-users"></i><span>Data Warga</span></div>
+                <div class="menu-item" onclick="bukaModal('Struktur')"><i class="fas fa-sitemap"></i><span>Struktur</span></div>
+                <div class="menu-item" onclick="bukaModal('Tata Tertib')"><i class="fas fa-book"></i><span>Tata Tertib</span></div>
+                <div class="menu-item" onclick="bukaModal('Inventaris')"><i class="fas fa-boxes"></i><span>Inventaris</span></div>
+                <div class="menu-item" onclick="bukaModal('Program')"><i class="fas fa-calendar-alt"></i><span>Program</span></div>
+                <div class="menu-item" onclick="bukaModal('Jadwal')"><i class="fas fa-clock"></i><span>Jadwal</span></div>
+                <div class="menu-item" onclick="bukaModal('Buku Kas')"><i class="fas fa-wallet"></i><span>Buku Kas</span></div>
+                <div class="menu-item" onclick="bukaModal('Notulen')"><i class="fas fa-edit"></i><span>Notulen</span></div>
+                <div class="menu-item" onclick="bukaModal('Berita')"><i class="fas fa-newspaper"></i><span>Berita</span></div>
+                <div class="menu-item" onclick="navigasi('iuran')"><i class="fas fa-hand-holding-usd"></i><span>Info Iuran</span></div>
+                <div class="menu-item" onclick="bukaModal('Nomor Penting')"><i class="fas fa-phone-alt"></i><span>Nomor Penting</span></div>
+                <div class="menu-item" onclick="bukaModal('Surat')"><i class="fas fa-file-signature"></i><span>Surat</span></div>
+            </div>
+
+            <div class="pengumuman-card" id="pengumumanDisplay">
+                <strong><i class="fas fa-bullhorn"></i> Pengumuman</strong>
+                <span id="pengumumanText">Memuat...</span>
+            </div>
+
+            <div class="section-title">
+                <h2><i class="fas fa-images"></i> Kegiatan Terbaru</h2>
+                <a onclick="navigasi('kegiatan')">Lihat semua</a>
+            </div>
+            <div class="card">
+                <div id="galeriPreview" class="galeri-grid" style="grid-template-columns:repeat(3,1fr);">Memuat...</div>
+            </div>
+        </div>
+
+        <!-- ===== HALAMAN IURAN ===== -->
+        <div id="pageIuran" class="page">
+            <div class="section-title">
+                <h2><i class="fas fa-coins" style="color:var(--warn)"></i> Iuran Warga</h2>
+                <a onclick="navigasi('warga')"><i class="fas fa-arrow-left"></i> Kembali</a>
+            </div>
+            <div class="card" id="daftarIuran">Memuat...</div>
+        </div>
+
+        <!-- ===== HALAMAN GALERI ===== -->
+        <div id="pageKegiatan" class="page">
+            <div class="section-title">
+                <h2><i class="fas fa-images"></i> Galeri Kegiatan</h2>
+                <a onclick="navigasi('warga')"><i class="fas fa-arrow-left"></i> Kembali</a>
+            </div>
+            <div class="card" id="galeriLengkap">Memuat...</div>
+        </div>
+
+        <!-- ===== HALAMAN ADMIN ===== -->
+        <div id="pageAdmin" class="page">
+            <div class="section-title">
+                <h2><i class="fas fa-user-shield"></i> Panel Admin</h2>
+                <a onclick="logoutAdmin()">Logout</a>
+            </div>
+
+            <div id="adminLogin" class="admin-login">
+                <h3><i class="fas fa-lock" style="color:var(--crystal);margin-right:6px;"></i>Masuk sebagai Admin</h3>
+                <input type="password" id="adminPassword" placeholder="Kata sandi" />
+                <button class="btn-primary" onclick="loginAdmin()">Masuk</button>
+                <p class="text-hint">Hubungi pengurus RT untuk mendapatkan kata sandi.</p>
+            </div>
+
+            <div id="adminPanel" style="display:none;">
+                <div class="admin-menu">
+                    <button class="aktif" onclick="showAdminTab('iuran')">Iuran</button>
+                    <button onclick="showAdminTab('kegiatan')">Kegiatan</button>
+                    <button onclick="showAdminTab('pengumuman')">Pengumuman</button>
+                    <button onclick="showAdminTab('warga')">Warga</button>
+                    <button onclick="showAdminTab('pengaturan')">Pengaturan</button>
+                </div>
+
+                <!-- ===== TAB IURAN ===== -->
+                <div id="adminIuran" class="admin-tab">
+                    <div class="card">
+                        <h4><i class="fas fa-plus-circle" style="color:var(--crystal);margin-right:6px;"></i>Tambah Tagihan</h4>
+                        <div class="admin-form">
+                            <input type="text" id="iuranBulan" placeholder="Bulan (contoh: Juli 2025)" />
+                            <input type="number" id="iuranNominal" placeholder="Nominal (Rp)" />
+                            <button class="btn-primary" onclick="tambahIuran()">Tambah Tagihan</button>
+                        </div>
+                        <div id="listIuranAdmin" style="margin-top:16px;"></div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB KEGIATAN ===== -->
+                <div id="adminKegiatan" class="admin-tab" style="display:none;">
+                    <div class="card">
+                        <h4><i class="fas fa-camera" style="color:var(--crystal);margin-right:6px;"></i>Upload Foto Kegiatan</h4>
+                        <div class="admin-form">
+                            <input type="text" id="kegiatanJudul" placeholder="Judul kegiatan" />
+                            <textarea id="kegiatanDeskripsi" placeholder="Deskripsi (opsional)"></textarea>
+                            <input type="file" id="kegiatanFoto" accept="image/*" />
+                            <button class="btn-primary" onclick="tambahKegiatan()">Upload</button>
+                            <p class="text-hint">Foto otomatis di-resize agar hemat kuota (max 400px).</p>
+                        </div>
+                        <div id="listKegiatanAdmin" style="margin-top:16px;"></div>
+                    </div>
+                </div>
+
+                <!-- ===== TAB PENGUMUMAN ===== -->
+                <div id="adminPengumuman" class="admin-tab" style="display:none;">
+                    <div class="card">
+                        <h4><i class="fas fa-bullhorn" style="color:var(--warn);margin-right:6px;"></i>Edit Pengumuman</h4>
+                        <textarea id="pengumumanEdit" rows="4" style="width:100%;padding:14px;border-radius:var(--r-md);background:var(--ob-700);color:var(--t1);border:1px solid var(--glass-border);font-family:inherit;font-size:13px;outline:none;resize:vertical;"></textarea>
+                        <button class="btn-primary" onclick="simpanPengumuman()">Simpan Pengumuman</button>
+                    </div>
+                </div>
+
+                <!-- ===== TAB WARGA ===== -->
+                <div id="adminWarga" class="admin-tab" style="display:none;">
+                    <div class="card">
+                        <h4><i class="fas fa-user-plus" style="color:var(--crystal);margin-right:6px;"></i>Tambah Kepala Keluarga (KK)</h4>
+                        <div class="admin-form">
+                            <input type="text" id="kkNama" placeholder="Nama Kepala Keluarga" />
+                            <input type="text" id="kkAlamat" placeholder="Alamat (Blok / No. Rumah)" />
+                            <p class="text-hint" style="margin-top:-4px;">RT/RW otomatis dari pengaturan.</p>
+                            <p style="font-size:12px;color:var(--t3);margin:6px 0;">Upload Dokumen (KTP Kepala Keluarga & Kartu Keluarga) — foto/scan</p>
+                            <input type="file" id="kkKtp" accept="image/*" />
+                            <input type="file" id="kkKk" accept="image/*" />
+                            <button class="btn-primary" onclick="tambahKK()">Tambah KK</button>
+                        </div>
+                        <div id="listKKAdmin" style="margin-top:16px;"></div>
+                    </div>
+
+                    <div class="card" id="anggotaFormContainer" style="display:none;">
+                        <h4><i class="fas fa-user-friends" style="color:var(--crystal);margin-right:6px;"></i>Tambah Anggota Keluarga</h4>
+                        <p style="font-size:13px;color:var(--t2);margin-bottom:8px;">Untuk KK: <span id="anggotaKkNama" style="color:var(--crystal);font-weight:700;"></span></p>
+                        <div class="admin-form">
+                            <input type="text" id="anggotaNama" placeholder="Nama Anggota" />
+                            <input type="text" id="anggotaHubungan" placeholder="Hubungan (Istri/Anak/dll)" />
+                            <button class="btn-primary" onclick="tambahAnggota()">Tambah Anggota</button>
+                        </div>
+                        <div id="listAnggota" style="margin-top:12px;"></div>
+                        <button class="btn-secondary" onclick="tutupAnggotaForm()">Selesai</button>
+                    </div>
+                </div>
+
+                <!-- ===== TAB PENGATURAN (BARU) ===== -->
+                <div id="adminPengaturan" class="admin-tab" style="display:none;">
+                    <div class="card">
+                        <h4><i class="fas fa-sliders-h" style="color:var(--crystal);margin-right:6px;"></i>Pengaturan Aplikasi</h4>
+                        <div class="admin-form">
+                            <input type="text" id="setNamaPerumahan" placeholder="Nama Perumahan" />
+                            <input type="text" id="setAlamatPerumahan" placeholder="Alamat (contoh: Ciherang, Banjarsari)" />
+                            <input type="text" id="setRT" placeholder="RT" />
+                            <input type="text" id="setRW" placeholder="RW" />
+                            <input type="text" id="setFooterText" placeholder="Footer (opsional)" />
+                            <button class="btn-primary" onclick="simpanPengaturan()">Simpan Pengaturan</button>
+                        </div>
+                        <div style="margin-top:16px;border-top:1px solid var(--glass-border);padding-top:16px;">
+                            <h4 style="font-size:13px;color:var(--err);">⚠️ Tindakan Berbahaya</h4>
+                            <button class="btn-danger" onclick="resetSemuaData()">Reset Semua Data (Warga + Iuran + Kegiatan)</button>
+                            <p class="text-hint">Data akan dihapus permanen dari database. Gunakan untuk menjual ke RT lain.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /app-layer -->
+
+    <!-- MODAL -->
+    <div id="modalOverlay" class="modal-overlay" onclick="tutupModal(event)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-handle"></div>
+            <h3 id="modalTitle"></h3>
+            <div id="modalBody"></div>
+            <button class="btn-secondary" onclick="tutupModal()" style="margin-top:18px;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toastContainer"></div>
+
+    <!-- FOOTER -->
+    <nav class="footer-menu">
+        <button class="footer-item aktif" onclick="navigasi('warga')"><i class="fas fa-home"></i> Beranda</button>
+        <button class="footer-item" onclick="navigasi('iuran')"><i class="fas fa-wallet"></i> Iuran</button>
+        <button class="footer-item" onclick="navigasi('kegiatan')"><i class="fas fa-images"></i> Galeri</button>
+        <button class="footer-item" onclick="navigasi('admin')"><i class="fas fa-user-cog"></i> Admin</button>
+    </nav>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPT: PARTIKEL + MODAL + TOAST + FIREBASE + PENGATURAN   -->
+    <!-- ============================================================ -->
+    <script>
+        /* ===== PARTIKEL ===== */
+        (function() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            let W, H;
+            const orbs = [];
+            const COUNT = 20;
+            function resize() { W = canvas.width = Math.min(480, window.innerWidth); H = canvas.height = window.innerHeight; }
+            resize();
+            window.addEventListener('resize', resize);
+            for (let i=0; i<COUNT; i++) {
+                orbs.push({
+                    x: Math.random()*W, y: Math.random()*H,
+                    r: Math.max(1.5, Math.random()*4+1),
+                    dx: (Math.random()-0.5)*0.25,
+                    dy: -(Math.random()*0.3+0.1),
+                    opacity: Math.random()*0.4+0.1,
+                    pulse: Math.random()*Math.PI*2,
+                    pulseSpeed: Math.random()*0.015+0.005,
+                    hue: Math.random()>0.7?230:195
+                });
+            }
+            function draw() {
+                ctx.clearRect(0,0,W,H);
+                for (const o of orbs) {
+                    o.x += o.dx + Math.sin(o.pulse)*0.15;
+                    o.y += o.dy;
+                    o.pulse += o.pulseSpeed;
+                    const alpha = o.opacity * (0.6 + 0.4*Math.sin(o.pulse));
+                    const r = Math.max(1,o.r);
+                    const grad = ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,r*6);
+                    grad.addColorStop(0, `hsla(${o.hue},85%,65%,${alpha})`);
+                    grad.addColorStop(1, `hsla(${o.hue},85%,65%,0)`);
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(o.x,o.y,r*6,0,Math.PI*2);
+                    ctx.fill();
+                    ctx.fillStyle = `hsla(${o.hue},90%,80%,${alpha*1.5})`;
+                    ctx.beginPath();
+                    ctx.arc(o.x,o.y,r,0,Math.PI*2);
+                    ctx.fill();
+                    if (o.y < -20) { o.y = H+20; o.x = Math.random()*W; }
+                    if (o.x < -20) o.x = W+20;
+                    if (o.x > W+20) o.x = -20;
+                }
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+    </script>
+
+    <script>
+        /* ===== TOAST ===== */
+        window.showToast = function(message, type) {
+            type = type || 'info';
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const iconMap = { success:'check-circle', error:'exclamation-circle', info:'info-circle' };
+            toast.className = 'toast toast-'+type;
+            toast.innerHTML = '<i class="fas fa-'+ (iconMap[type]||'info-circle') +'"></i> '+message;
+            container.appendChild(toast);
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() { toast.classList.add('show'); });
+            });
+            setTimeout(function() {
+                toast.classList.remove('show');
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 3000);
+        };
+
+        /* ===== MODAL BIASA ===== */
+        var menuContents = {
+            'Struktur': { icon:'fa-sitemap', body:'...' },
+            'Tata Tertib': { icon:'fa-book', body:'...' },
+            'Inventaris': { icon:'fa-boxes', body:'...' },
+            'Program': { icon:'fa-calendar-alt', body:'...' },
+            'Jadwal': { icon:'fa-clock', body:'...' },
+            'Buku Kas': { icon:'fa-wallet', body:'...' },
+            'Notulen': { icon:'fa-edit', body:'...' },
+            'Berita': { icon:'fa-newspaper', body:'...' },
+            'Nomor Penting': { icon:'fa-phone-alt', body:'...' },
+            'Surat': { icon:'fa-file-signature', body:'...' }
+        };
+        // Isi konten modal (sama seperti sebelumnya, disingkat)
+        for (const k in menuContents) {
+            if (k==='Struktur') menuContents[k].body = '<div class="modal-text"><p><strong>Ketua RW 05:</strong> H. Ahmad Fauzi</p><p><strong>Ketua RT 03:</strong> Budi Santoso</p><p><strong>Sekretaris:</strong> Siti Aminah</p><p><strong>Bendahara:</strong> Dewi Rahmawati</p><p><strong>Seksi Keamanan:</strong> Irwan Setiawan</p><p><strong>Seksi Kebersihan:</strong> Nur Hidayah</p><p><strong>Seksi Sosial:</strong> Ratna Sari</p></div>';
+            else if (k==='Tata Tertib') menuContents[k].body = '<div class="modal-text"><p><strong>1.</strong> Jam hening malam 22.00-05.00.</p><p><strong>2.</strong> Parkir di area ditentukan.</p><p><strong>3.</strong> Iuran deadline tgl 10.</p><p><strong>4.</strong> Kebersihan bersama.</p><p><strong>5.</strong> Renovasi lapor RT.</p></div>';
+            else if (k==='Inventaris') menuContents[k].body = '<div class="info-row"><span>Pos Keamanan</span><span>2 unit</span></div><div class="info-row"><span>Penerangan Jalan</span><span>36 titik</span></div><div class="info-row"><span>Tempat Sampah</span><span>24 unit</span></div><div class="info-row"><span>Pos Ronda</span><span>3 unit</span></div>';
+            else if (k==='Program') menuContents[k].body = '<div class="modal-text"><p><strong>Q1 2025</strong> — Bersih-bersih.</p><p><strong>Q2 2025</strong> — Perbaikan drainase.</p><p><strong>Q3 2025</strong> — Lomba 17 Agustus.</p><p><strong>Q4 2025</strong> — Pengadaan CCTV.</p></div>';
+            else if (k==='Jadwal') menuContents[k].body = '<div class="info-row"><span>Senin</span><span>Blok A</span></div><div class="info-row"><span>Selasa</span><span>Blok B</span></div><div class="info-row"><span>Rabu</span><span>Blok C</span></div><div class="info-row"><span>Kamis</span><span>Blok A</span></div><div class="info-row"><span>Jumat</span><span>Blok B</span></div><div class="info-row"><span>Sabtu</span><span>Blok C</span></div><div class="info-row"><span>Minggu</span><span>Pengurus</span></div>';
+            else if (k==='Buku Kas') menuContents[k].body = '<div class="info-row"><span>Pemasukan</span><span>Rp 8.520.000</span></div><div class="info-row"><span>Kebersihan</span><span>Rp 2.100.000</span></div><div class="info-row"><span>Keamanan</span><span>Rp 3.600.000</span></div><div class="info-row"><span>Saldo</span><span style="color:var(--ok);">Rp 1.970.000</span></div>';
+            else if (k==='Notulen') menuContents[k].body = '<div class="modal-text"><p><strong>5 Juli 2025</strong> — Pembuatan pos keamanan disetujui.</p><p><strong>10 Juni 2025</strong> — Jadwal ronda baru disepakati.</p></div>';
+            else if (k==='Berita') menuContents[k].body = '<div class="modal-text"><p><strong>12 Jul 2025</strong> — CCTV terpasang.</p><p><strong>28 Jun 2025</strong> — Gotong royong jalan.</p><p><strong>15 Jun 2025</strong> — Penghargaan lingkungan.</p></div>';
+            else if (k==='Nomor Penting') menuContents[k].body = '<div class="info-row"><span>Polsek</span><span>0265-123456</span></div><div class="info-row"><span>Ambulans</span><span>0265-234567</span></div><div class="info-row"><span>Pemadam</span><span>0265-345678</span></div><div class="info-row"><span>PMI</span><span>0265-456789</span></div><div class="info-row"><span>PLN</span><span>123</span></div><div class="info-row"><span>PDAM</span><span>0265-567890</span></div>';
+            else if (k==='Surat') menuContents[k].body = '<div class="modal-text"><p>Surat menyurat digital: Domisili, Tidak Mampu, SKCK, Usaha.</p><p style="color:var(--crystal);">Hubungi Ketua RT.</p></div>';
+        }
+
+        window.bukaModal = function(title) {
+            var data = menuContents[title];
+            if (!data) return;
+            document.getElementById('modalTitle').innerHTML = '<i class="fas '+data.icon+'"></i> '+title;
+            document.getElementById('modalBody').innerHTML = data.body;
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+        window.tutupModal = function(e) {
+            if (e && e.target !== document.getElementById('modalOverlay')) return;
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+        document.querySelector('.modal-sheet .btn-secondary').addEventListener('click', function() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        });
+
+        window.bukaModalWarga = function() {
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-users"></i> Data Warga';
+            document.getElementById('modalBody').innerHTML = '<div id="modalWargaContent">Memuat data warga...</div>';
+            document.getElementById('modalOverlay').classList.add('active');
+            renderWargaModal();
+        };
+        window.renderWargaModal = function() {
+            const container = document.getElementById('modalWargaContent');
+            if (!container) return;
+            // akan diisi dari Firebase
+        };
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getDatabase, ref, onValue, set, push, update, remove } from "firebase/database";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCEe57mxNPnHNH9BQlk_G880DWdRnkpzhQ",
+            authDomain: "perum-griya-safira.firebaseapp.com",
+            databaseURL: "https://perum-griya-safira-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "perum-griya-safira",
+            storageBucket: "perum-griya-safira.firebasestorage.app",
+            messagingSenderId: "1061219368853",
+            appId: "1:1061219368853:web:7717708bb88db37335009c",
+            measurementId: "G-2SMTE7YGW9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.db = db;
+        window.ref = ref;
+        window.onValue = onValue;
+        window.set = set;
+        window.push = push;
+        window.update = update;
+        window.remove = remove;
+
+        /* =================================================== */
+        /* ===== FUNGSI PENGATURAN (SETTINGS) ===== */
+        /* =================================================== */
+
+        // Baca settings dari Firebase, terapkan ke UI
+        function renderSettings() {
+            onValue(ref(db, 'settings'), function(snapshot) {
+                const s = snapshot.val() || {};
+                // Isi form admin
+                document.getElementById('setNamaPerumahan').value = s.namaPerumahan || 'Griya Safira';
+                document.getElementById('setAlamatPerumahan').value = s.alamatPerumahan || 'Ciherang, Banjarsari';
+                document.getElementById('setRT').value = s.rt || '03';
+                document.getElementById('setRW').value = s.rw || '05';
+                document.getElementById('setFooterText').value = s.footerText || 'Aplikasi Warga • Dibangun untuk kebersamaan';
+
+                // Header
+                document.getElementById('headerNama').innerHTML = (s.namaPerumahan || 'Griya Safira') + ' <small id="headerAlamat">' + (s.alamatPerumahan || 'Perumahan • Ciherang, Banjarsari') + '</small>';
+                // Profil alamat
+                document.getElementById('profilAlamat').innerHTML = '<i class="fas fa-home"></i> RT ' + (s.rt || '03') + ' / RW ' + (s.rw || '05') + ' &bull; Blok A-12';
+            });
+        }
+
+        // Simpan pengaturan
+        window.simpanPengaturan = function() {
+            const nama = document.getElementById('setNamaPerumahan').value.trim();
+            const alamat = document.getElementById('setAlamatPerumahan').value.trim();
+            const rt = document.getElementById('setRT').value.trim();
+            const rw = document.getElementById('setRW').value.trim();
+            const footer = document.getElementById('setFooterText').value.trim();
+            if (!nama || !alamat || !rt || !rw) {
+                showToast('Semua field wajib diisi.', 'error');
+                return;
+            }
+            set(ref(db, 'settings'), { namaPerumahan: nama, alamatPerumahan: alamat, rt: rt, rw: rw, footerText: footer })
+                .then(() => { showToast('Pengaturan berhasil disimpan.', 'success'); });
+        };
+
+        // Reset semua data (untuk dijual ke RT lain)
+        window.resetSemuaData = function() {
+            if (!confirm('Yakin akan menghapus SEMUA data warga, iuran, dan kegiatan? Data tidak bisa dikembalikan.')) return;
+            if (!confirm('Sekali lagi: Ini akan menghapus semua data. Lanjutkan?')) return;
+            Promise.all([
+                remove(ref(db, 'warga')),
+                remove(ref(db, 'iuran')),
+                remove(ref(db, 'kegiatan'))
+            ]).then(() => {
+                showToast('Semua data telah direset.', 'success');
+                // Render ulang
+                renderAdminWarga();
+                renderAdminIuran();
+                renderAdminKegiatan();
+                renderIuran();
+                renderGaleri(3);
+            }).catch((err) => {
+                showToast('Gagal reset: ' + err.message, 'error');
+            });
+        };
+
+        /* =================================================== */
+        /* ===== RENDER FUNGSI LAINNYA (sama) ===== */
+        /* =================================================== */
+
+        // RENDER IURAN
+        window.renderIuran = function() {
+            onValue(ref(db, 'iuran'), function(snapshot) {
+                var data = snapshot.val();
+                var container = document.getElementById('daftarIuran');
+                if (!data) { container.innerHTML = '<p style="color:var(--t3);text-align:center;padding:20px;">Belum ada tagihan iuran.</p>'; return; }
+                var html = '';
+                var totalBelum = 0, totalNominal = 0;
+                Object.keys(data).forEach(function(key) {
+                    var item = data[key];
+                    var cls = item.lunas ? 'lunas' : 'belum';
+                    var label = item.lunas ? 'Lunas' : 'Belum';
+                    var icon = item.lunas ? '✔' : '○';
+                    html += '<div class="tagihan-row"><span class="bulan">' + item.bulan + '</span><span class="status ' + cls + '">' + icon + ' ' + label + '</span></div>';
+                    if (!item.lunas) { totalBelum++; totalNominal += item.nominal || 0; }
+                });
+                html += '<div class="total-bayar"><span>Belum dibayar: ' + totalBelum + ' bulan</span><span>Rp ' + totalNominal.toLocaleString('id-ID') + '</span></div>';
+                container.innerHTML = html;
+            });
+        };
+
+        // RENDER GALERI
+        window.renderGaleri = function(limit) {
+            limit = limit || 3;
+            onValue(ref(db, 'kegiatan'), function(snapshot) {
+                var data = snapshot.val();
+                var preview = document.getElementById('galeriPreview');
+                var full = document.getElementById('galeriLengkap');
+                if (!data) {
+                    var empty = '<div class="galeri-empty"><i class="fas fa-images" style="font-size:24px;display:block;margin-bottom:8px;"></i>Belum ada kegiatan</div>';
+                    preview.innerHTML = empty;
+                    full.innerHTML = empty;
+                    return;
+                }
+                var items = Object.keys(data).map(function(k) { return Object.assign({ key: k }, data[k]); }).reverse();
+                var hp = '';
+                items.slice(0, limit).forEach(function(item) {
+                    if (item.fotoBase64) {
+                        hp += '<div class="galeri-item"><img src="' + item.fotoBase64 + '" alt="' + item.judul + '" loading="lazy" /></div>';
+                    } else {
+                        hp += '<div class="galeri-item"><i class="fas fa-image" style="font-size:18px;color:var(--t3);"></i></div>';
+                    }
+                });
+                preview.innerHTML = hp || '<div class="galeri-empty">Belum ada foto</div>';
+                var hf = '';
+                items.forEach(function(item) {
+                    if (item.fotoBase64) {
+                        hf += '<div class="galeri-item"><img src="' + item.fotoBase64 + '" alt="' + item.judul + '" loading="lazy" /><button class="hapus-foto" onclick="hapusKegiatan(\'' + item.key + '\')"><i class="fas fa-times"></i></button></div>';
+                    } else {
+                        hf += '<div class="galeri-item"><i class="fas fa-image" style="font-size:18px;color:var(--t3);"></i><br><span style="font-size:9px;margin-top:4px;">' + item.judul + '</span></div>';
+                    }
+                });
+                full.innerHTML = '<div class="galeri-grid">' + (hf || '<div class="galeri-empty">Belum ada foto</div>') + '</div>';
+            });
+        };
+
+        // RENDER PENGUMUMAN
+        window.renderPengumuman = function() {
+            onValue(ref(db, 'pengumuman'), function(snapshot) {
+                var teks = snapshot.val() || 'Belum ada pengumuman.';
+                document.getElementById('pengumumanText').textContent = teks;
+                document.getElementById('pengumumanEdit').value = teks;
+            });
+        };
+
+        // RENDER NAMA WARGA (default, bisa diubah di admin warga)
+        window.renderNamaWarga = function() {
+            onValue(ref(db, 'namaWarga'), function(snapshot) {
+                var nama = snapshot.val() || 'Budi Santoso';
+                document.getElementById('namaWarga').textContent = nama;
+                document.getElementById('editNamaWarga').value = nama;
+                document.getElementById('avatarLetter').textContent = nama.substring(0, 2).toUpperCase();
+            });
+        };
+
+        /* =================================================== */
+        /* ===== MANAJEMEN WARGA (sama, tapi RT/RW dari settings) ===== */
+        /* =================================================== */
+
+        window.tambahKK = function() {
+            var nama = document.getElementById('kkNama').value.trim();
+            var alamat = document.getElementById('kkAlamat').value.trim();
+            if (!nama) { showToast('Nama Kepala Keluarga wajib diisi.', 'error'); return; }
+
+            // Ambil RT/RW dari settings
+            onValue(ref(db, 'settings'), function(snap) {
+                var s = snap.val() || {};
+                var rt = s.rt || '03';
+                var rw = s.rw || '05';
+
+                var ktpFile = document.getElementById('kkKtp').files[0];
+                var kkFile = document.getElementById('kkKk').files[0];
+                var ktpBase64 = '', kkBase64 = '';
+
+                var uploadKtp = function(callback) {
+                    if (!ktpFile) { callback(''); return; }
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var img = new Image();
+                        img.onload = function() {
+                            var canvas = document.createElement('canvas');
+                            var w = img.width, h = img.height;
+                            var maxSize = 400;
+                            if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+                            else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+                            canvas.width = w; canvas.height = h;
+                            var ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, w, h);
+                            callback(canvas.toDataURL('image/jpeg', 0.7));
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(ktpFile);
+                };
+
+                var uploadKk = function(callback) {
+                    if (!kkFile) { callback(''); return; }
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var img = new Image();
+                        img.onload = function() {
+                            var canvas = document.createElement('canvas');
+                            var w = img.width, h = img.height;
+                            var maxSize = 400;
+                            if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } }
+                            else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } }
+                            canvas.width = w; canvas.height = h;
+                            var ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, w, h);
+                            callback(canvas.toDataURL('image/jpeg', 0.7));
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(kkFile);
+                };
+
+                uploadKtp(function(ktp) {
+                    uploadKk(function(kk) {
+                        var newRef = push(ref(db, 'warga'));
+                        set(newRef, {
+                            kepalaKeluarga: nama,
+                            alamat: alamat || 'Blok A-12',
+                            rt: rt,
+                            rw: rw,
+                            dokumen: { ktp: ktp, kk: kk },
+                            anggota: []
+                        }).then(function() {
+                            document.getElementById('kkNama').value = '';
+                            document.getElementById('kkAlamat').value = '';
+                            document.getElementById('kkKtp').value = '';
+                            document.getElementById('kkKk').value = '';
+                            showToast('KK ' + nama + ' berhasil ditambahkan.', 'success');
+                            renderAdminWarga();
+                        });
+                    });
+                });
+            }, { onlyOnce: true });
+        };
+
+        // Hapus KK, tambah anggota, dll. (sama seperti sebelumnya, tidak diubah)
+        window.hapusKK = function(key) {
+            if (!confirm('Hapus KK ini?')) return;
+            remove(ref(db, 'warga/'+key)).then(() => { showToast('KK dihapus.','info'); renderAdminWarga(); });
+        };
+        window.bukaFormAnggota = function(key, namaKk) {
+            document.getElementById('anggotaFormContainer').style.display = 'block';
+            document.getElementById('anggotaKkNama').textContent = namaKk;
+            document.getElementById('anggotaFormContainer').dataset.kkKey = key;
+            renderAnggota(key);
+        };
+        window.tutupAnggotaForm = function() {
+            document.getElementById('anggotaFormContainer').style.display = 'none';
+        };
+        window.tambahAnggota = function() {
+            var key = document.getElementById('anggotaFormContainer').dataset.kkKey;
+            if (!key) { showToast('Pilih KK dulu.','error'); return; }
+            var nama = document.getElementById('anggotaNama').value.trim();
+            var hubungan = document.getElementById('anggotaHubungan').value.trim();
+            if (!nama || !hubungan) { showToast('Nama dan hubungan wajib.','error'); return; }
+            var anggotaRef = ref(db, 'warga/'+key+'/anggota');
+            push(anggotaRef, { nama: nama, hubungan: hubungan }).then(() => {
+                document.getElementById('anggotaNama').value = '';
+                document.getElementById('anggotaHubungan').value = '';
+                showToast('Anggota ditambahkan.','success');
+                renderAnggota(key);
+                renderAdminWarga();
+            });
+        };
+        window.hapusAnggota = function(kkKey, anggotaKey) {
+            if (!confirm('Hapus anggota?')) return;
+            remove(ref(db, 'warga/'+kkKey+'/anggota/'+anggotaKey)).then(() => {
+                showToast('Anggota dihapus.','info');
+                renderAnggota(kkKey);
+                renderAdminWarga();
+            });
+        };
+        window.renderAnggota = function(kkKey) {
+            var container = document.getElementById('listAnggota');
+            onValue(ref(db, 'warga/'+kkKey+'/anggota'), function(snapshot) {
+                var data = snapshot.val();
+                if (!data) { container.innerHTML = '<p style="color:var(--t3);font-size:13px;">Belum ada anggota.</p>'; return; }
+                var html = '';
+                Object.keys(data).forEach(function(key) {
+                    var item = data[key];
+                    html += '<div class="list-item"><span><strong>'+item.nama+'</strong> ('+item.hubungan+')</span><span class="hapus" onclick="hapusAnggota(\''+kkKey+'\',\''+key+'\')">&times;</span></div>';
+                });
+                container.innerHTML = html;
+            });
+        };
+
+        // Render daftar KK di admin
+        window.renderAdminWarga = function() {
+            var container = document.getElementById('listKKAdmin');
+            onValue(ref(db, 'warga'), function(snapshot) {
+                var data = snapshot.val();
+                if (!data) { container.innerHTML = '<p style="color:var(--t3);text-align:center;padding:12px;">Belum ada KK.</p>'; return; }
+                var html = '';
+                Object.keys(data).forEach(function(key) {
+                    var item = data[key];
+                    var jmlAnggota = item.anggota ? Object.keys(item.anggota).length : 0;
+                    html += '<div class="warga-list-item">';
+                    html += '<div class="kk-nama">'+item.kepalaKeluarga+' <span style="font-size:12px;color:var(--t3);font-weight:400;">(KK)</span></div>';
+                    html += '<div class="kk-detail">'+item.alamat+' | RT '+item.rt+'/RW '+item.rw+' | Anggota: '+jmlAnggota+' org</div>';
+                    if (item.dokumen && (item.dokumen.ktp || item.dokumen.kk)) {
+                        html += '<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">';
+                        if (item.dokumen.ktp) html += '<span style="background:var(--crystal-glow);padding:2px 10px;border-radius:12px;font-size:10px;color:var(--crystal);"><i class="fas fa-id-card"></i> KTP</span>';
+                        if (item.dokumen.kk) html += '<span style="background:var(--crystal-glow);padding:2px 10px;border-radius:12px;font-size:10px;color:var(--crystal);"><i class="fas fa-file-alt"></i> KK</span>';
+                        html += '</div>';
+                    }
+                    html += '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">';
+                    html += '<button class="btn-secondary" style="flex:1;padding:6px 10px;font-size:11px;margin:0;" onclick="bukaFormAnggota(\''+key+'\',\''+item.kepalaKeluarga+'\')"><i class="fas fa-user-plus"></i> Tambah Anggota</button>';
+                    html += '<button class="btn-secondary" style="flex:1;padding:6px 10px;font-size:11px;margin:0;background:var(--err-bg);color:var(--err);border-color:rgba(248,113,113,0.2);" onclick="hapusKK(\''+key+'\')"><i class="fas fa-trash"></i> Hapus KK</button>';
+                    html += '</div></div>';
+                });
+                container.innerHTML = html;
+            });
+        };
+
+        // Modal data warga
+        window.renderWargaModal = function() {
+            var container = document.getElementById('modalWargaContent');
+            if (!container) return;
+            onValue(ref(db, 'warga'), function(snapshot) {
+                var data = snapshot.val();
+                if (!data) { container.innerHTML = '<p style="color:var(--t3);text-align:center;padding:20px;">Belum ada data KK.</p>'; return; }
+                var html = '';
+                Object.keys(data).forEach(function(key) {
+                    var item = data[key];
+                    var anggotaList = '';
+                    if (item.anggota) {
+                        Object.values(item.anggota).forEach(function(ang) {
+                            anggotaList += '<div class="anggota-item"><i class="fas fa-user" style="color:var(--t3);width:16px;"></i> '+ang.nama+' ('+ang.hubungan+')</div>';
+                        });
+                    }
+                    html += '<div class="warga-list-item" style="margin-bottom:12px;">';
+                    html += '<div class="kk-nama"><i class="fas fa-user-tie" style="color:var(--crystal);margin-right:6px;"></i>'+item.kepalaKeluarga+'</div>';
+                    html += '<div class="kk-detail">'+item.alamat+' | RT '+item.rt+'/RW '+item.rw+'</div>';
+                    if (item.dokumen && (item.dokumen.ktp || item.dokumen.kk)) {
+                        html += '<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">';
+                        if (item.dokumen.ktp) html += '<span style="background:var(--crystal-glow);padding:2px 10px;border-radius:12px;font-size:10px;color:var(--crystal);"><i class="fas fa-id-card"></i> KTP</span>';
+                        if (item.dokumen.kk) html += '<span style="background:var(--crystal-glow);padding:2px 10px;border-radius:12px;font-size:10px;color:var(--crystal);"><i class="fas fa-file-alt"></i> KK</span>';
+                        html += '</div>';
+                    }
+                    if (anggotaList) html += '<div class="anggota-list" style="margin-top:6px;">'+anggotaList+'</div>';
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+            });
+        };
+
+        /* =================================================== */
+        /* ===== ADMIN KEGIATAN & IURAN (sama) ===== */
+        /* =================================================== */
+
+        window.tambahKegiatan = function() {
+            var judul = document.getElementById('kegiatanJudul').value.trim();
+            var deskripsi = document.getElementById('kegiatanDeskripsi').value.trim();
+            var fileInput = document.getElementById('kegiatanFoto');
+            if (!judul) { showToast('Masukkan judul kegiatan.', 'error'); return; }
+            var file = fileInput.files[0];
+            if (!file) {
+                var newRef = push(ref(db, 'kegiatan'));
+                set(newRef, { judul: judul, deskripsi: deskripsi, fotoBase64: '', tanggal: new Date().toISOString().slice(0,10) }).then(() => { resetFormKegiatan(); showToast('Kegiatan ditambahkan tanpa foto.','success'); });
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var w = img.width, h = img.height;
+                    var maxSize = 400;
+                    if (w > h) { if (w > maxSize) { h *= maxSize/w; w = maxSize; } }
+                    else { if (h > maxSize) { w *= maxSize/h; h = maxSize; } }
+                    canvas.width = w; canvas.height = h;
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    var base64 = canvas.toDataURL('image/jpeg', 0.7);
+                    var newRef = push(ref(db, 'kegiatan'));
+                    set(newRef, { judul: judul, deskripsi: deskripsi, fotoBase64: base64, tanggal: new Date().toISOString().slice(0,10) }).then(() => { resetFormKegiatan(); showToast('Foto kegiatan berhasil diupload.','success'); });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+        function resetFormKegiatan() { document.getElementById('kegiatanJudul').value=''; document.getElementById('kegiatanDeskripsi').value=''; document.getElementById('kegiatanFoto').value=''; }
+        window.hapusKegiatan = function(key) { remove(ref(db, 'kegiatan/'+key)); showToast('Kegiatan dihapus.','info'); };
+
+        window.renderAdminKegiatan = function() {
+            onValue(ref(db, 'kegiatan'), function(snapshot) {
+                var data = snapshot.val();
+                var container = document.getElementById('listKegiatanAdmin');
+                if (!data) { container.innerHTML = '<p style="color:var(--t3);text-align:center;padding:12px;">Belum ada kegiatan.</p>'; return; }
+                var html = '';
+                Object.keys(data).forEach(function(key) {
+                    var item = data[key];
+                    html += '<div class="list-item"><span><strong>'+item.judul+'</strong> '+(item.fotoBase64?'<i class="fas fa-image" style="color:var(--crystal);margin-left:4px;"></i>':'')+'</span><span class="hapus" onclick="hapusKegiatan(\''+key+'\')">&times;</span></div>';
+                });
+                container.innerHTML = html;
+            });
+        };
+
+        window.tambahIuran = function() {
+            var bulan = document.getElementById('iuranBulan').value.trim();
+            var nominal = parseInt(document.getElementById('iuranNominal').value);
+            if (!bulan || !nominal) { showToast('Isi bulan dan nominal.','error'); return; }
+            var newRef = push(ref(db, 'iuran'));
+            set(newRef, { bulan: bulan, nominal: nominal, lunas: false }).then(() => {
+                document.getElementById('iuranBulan').value=''; document.getElementById('iuranNominal').value='';
+                showToast('Tagihan '+bulan+' berhasil ditambahkan.','success');
+                renderAdminIuran();
+            });
+        };
+        window.renderAdminIuran = function() {
+            onValue(ref(db, 'iuran'), function(snapshot) {
+                var data = snapshot.val();
+                var container = document.getElementById('listIuranAdmin');
+                if (!data) { container.innerHTML = '<p style="color:var(--t3);text-align:center;padding:12px;">Belum ada tagihan.</p>'; return; }
+                var html = '';
+                Object.keys(data).forEach(function(key) {
+                    var item = data[key];
+                    html += '<div class="list-item"><span><strong>'+item.bulan+'</strong> &mdash; Rp '+(item.nominal||0).toLocaleString('id-ID')+' ('+(item.lunas?'Lunas':'Belum')+')</span><span class="aksi"><span class="lunaskan" onclick="toggleLunas(\''+key+'\')">'+(item.lunas?'Batalkan':'Lunaskan')+'</span><span class="hapus" onclick="hapusIuran(\''+key+'\')">&times;</span></span></div>';
+                });
+                container.innerHTML = html;
+            });
+        };
+        window.toggleLunas = function(key) {
+            onValue(ref(db, 'iuran/'+key), function(snapshot) {
+                var item = snapshot.val();
+                if (item) { update(ref(db, 'iuran/'+key), { lunas: !item.lunas }); showToast(item.lunas?'Tagihan dibatalkan.':'Tagihan dilunasi.','success'); }
+            }, { onlyOnce: true });
+        };
+        window.hapusIuran = function(key) { remove(ref(db, 'iuran/'+key)); showToast('Tagihan dihapus.','info'); };
+
+        window.simpanPengumuman = function() {
+            var teks = document.getElementById('pengumumanEdit').value.trim();
+            if (!teks) { showToast('Pengumuman tidak boleh kosong.','error'); return; }
+            set(ref(db, 'pengumuman'), teks).then(() => { showToast('Pengumuman disimpan.','success'); });
+        };
+
+        /* ===== ADMIN LOGIN / LOGOUT ===== */
+        window.loginAdmin = function() {
+            var pass = document.getElementById('adminPassword').value;
+            if (pass === 'admin123') {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                showAdminTab('iuran');
+                renderAdminIuran();
+                renderAdminKegiatan();
+                renderAdminWarga();
+                showToast('Selamat datang, Admin.','success');
+            } else { showToast('Kata sandi salah.','error'); }
+        };
+        document.getElementById('adminPassword').addEventListener('keydown', function(e) { if (e.key==='Enter') loginAdmin(); });
+        window.logoutAdmin = function() {
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            navigasi('warga');
+            showToast('Logout berhasil.','info');
+        };
+
+        /* ===== ADMIN TAB SWITCH ===== */
+        window.showAdminTab = function(tab) {
+            var tabs = ['iuran','kegiatan','pengumuman','warga','pengaturan'];
+            var idx = tabs.indexOf(tab);
+            tabs.forEach(function(t,i) {
+                var el = document.getElementById('admin'+t.charAt(0).toUpperCase()+t.slice(1));
+                if (el) el.style.display = (t===tab) ? 'block' : 'none';
+                var btns = document.querySelectorAll('.admin-menu button');
+                if (btns[i]) btns[i].classList.toggle('aktif', t===tab);
+            });
+            if (tab==='iuran') renderAdminIuran();
+            if (tab==='kegiatan') renderAdminKegiatan();
+            if (tab==='warga') renderAdminWarga();
+            if (tab==='pengumuman') {
+                document.getElementById('pengumumanEdit').value = document.getElementById('pengumumanText').textContent;
+            }
+            if (tab==='pengaturan') {
+                // isi form dengan data terkini
+                onValue(ref(db, 'settings'), function(snap) {
+                    var s = snap.val() || {};
+                    document.getElementById('setNamaPerumahan').value = s.namaPerumahan || 'Griya Safira';
+                    document.getElementById('setAlamatPerumahan').value = s.alamatPerumahan || 'Ciherang, Banjarsari';
+                    document.getElementById('setRT').value = s.rt || '03';
+                    document.getElementById('setRW').value = s.rw || '05';
+                    document.getElementById('setFooterText').value = s.footerText || 'Aplikasi Warga • Dibangun untuk kebersamaan';
+                }, { onlyOnce: true });
+            }
+        };
+
+        /* ===== NAVIGASI ===== */
+        window.navigasi = function(target) {
+            document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+            document.querySelectorAll('.footer-item').forEach(function(f) { f.classList.remove('aktif'); });
+            var map = { warga:0, iuran:1, kegiatan:2, admin:3 };
+            var pageMap = { warga:'pageWarga', iuran:'pageIuran', kegiatan:'pageKegiatan', admin:'pageAdmin' };
+            document.getElementById(pageMap[target]).classList.add('active');
+            var btns = document.querySelectorAll('.footer-item');
+            if (btns[map[target]]) btns[map[target]].classList.add('aktif');
+            if (target==='iuran') renderIuran();
+            if (target==='kegiatan') renderGaleri(999);
+            if (target==='admin') {
+                var isLoggedIn = document.getElementById('adminPanel').style.display === 'block';
+                if (!isLoggedIn) { document.getElementById('adminLogin').style.display = 'block'; document.getElementById('adminPanel').style.display = 'none'; }
+            }
+            window.scrollTo({ top:0, behavior:'smooth' });
+        };
+        document.getElementById('toggleAdminBtn').addEventListener('click', function() { navigasi('admin'); });
+
+        /* ===== RENDER AWAL ===== */
+        renderSettings();
+        renderIuran();
+        renderGaleri(3);
+        renderPengumuman();
+        renderNamaWarga();
+
+        console.log('Griya Safira — dengan Pengaturan + Branding (siap dijual)');
+    </script>
+</body>
+  </html>
